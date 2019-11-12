@@ -122,7 +122,7 @@ pageEncoding="UTF-8"%>
 								</a>
 							</li>
 							<li>
-								<a _href="NBA/teamlist.html">
+								<a _href="nba/team/teamList">
 									<i class="iconfont">&#xe6a7;</i>
 									<cite>球队</cite>
 								</a>

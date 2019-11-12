@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yz.dao.TeamMapper">
+
+	<resultMap id="BaseResultMap" type="com.yz.model.Team">
+		<id column="team_id" property="team_id" jdbcType="INTEGER" />
+		<result column="team_name" property="team_name" jdbcType="VARCHAR" />
+		<result column="english_name" property="english_name" jdbcType="VARCHAR" />
+		<result column="location_city" property="location_city" jdbcType="VARCHAR" />
+		<result column="branch" property="branch" jdbcType="VARCHAR" />
+		<result column="area" property="area" jdbcType="VARCHAR" />
+		<result column="photo_path" property="photo_path" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 查询所有球队数据 -->
+	<select id="getTeams" parameterType="com.yz.model.Team" resultMap="BaseResultMap">
+		select
+		t.team_id, t.team_name, t.english_name, t.location_city, t.branch, t.area, t.photo_path 
+		from teams t
+		
+		where 1 = 1 
+		<if test="team_name != null and team_name != '' ">
+		and (t.team_name like '%${team_name}%' or t.english_name like '%${team_name}%')
+		</if>
+		<if test="branch != null and branch != '' ">
+		and t.branch = #{branch}
+		</if>
+		<if test="area != null and area != '' ">
+		and t.area = #{area}
+		</if>
+		<if test="page != null and limit != null">
+		limit #{page},#{limit} 
+		</if>
+		
+	</select>
+	
+	<!-- 查询演员总数 -->
+	<select id="getCount" parameterType="com.yz.model.Team" resultType="java.lang.Integer">
+		select count(t.team_id) from teams t where 1=1
+		<if test="team_name != null and team_name != '' ">
+		and (t.team_name like '%${team_name}%' or t.english_name like '%${team_name}%')
+		</if>
+		<if test="branch != null and branch != '' ">
+		and t.branch = #{branch}
+		</if>
+		<if test="area != null and area != '' ">
+		and t.area = #{area}
+		</if>
+	</select>
+	
+	<!-- 新增球队 -->
+	<insert id="insertTeam" parameterType="com.yz.model.Team">
+		insert into teams(team_name,english_name,location_city,branch,area,photo_path)
+		values(#{team_name},#{english_name},#{location_city},#{branch},#{area},#{photo_path})
+	</insert>
+
+</mapper>
