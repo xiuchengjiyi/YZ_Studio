@@ -109,7 +109,7 @@ pageEncoding="UTF-8"%>
                   <div carousel-item id="LAY-index-dataview">
                     <div>
 						<div style="text-align: center;">
-							各个月观看电影电视剧统计表（电视剧观看时间已结束观看时间计算）&nbsp;&nbsp;&nbsp;年份：
+							各个月观看电影电视剧统计表（电视剧观看时间以结束观看时间计算）&nbsp;&nbsp;&nbsp;年份：
 							<select id = "info_year" onchange="changeYear()">
 								<option value="2017">2017</option>
 								<option value="2018">2018</option>
