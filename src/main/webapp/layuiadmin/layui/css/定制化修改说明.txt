@@ -1,0 +1,29 @@
+.layui-table {
+	width: 100%;
+	background-color: #fff;
+	color: #282828  //#666ÐÞ¸Ä
+}
+
+.layui-table-cell {
+	height: 28px;
+	line-height: 28px;
+	padding: 0 5px;//15px ¸Ä³É5px
+	position: relative;
+	box-sizing: border-box;
+}
+
+.layui-form-item {
+	margin-bottom:2px;
+	clear: both;
+	*zoom: 1
+}
+
+.layui-form-label {
+	float: left;
+	display: block;
+	padding: 5px 12px;
+	width: 80px;
+	font-weight: 400;
+	line-height: 20px;
+	text-align: right
+}

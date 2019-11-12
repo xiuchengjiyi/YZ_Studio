@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yz.dao.EchartMapper">
+
+	<resultMap id="BaseResultMap" type="com.yz.model.Echart">
+		<result column="year" property="year" jdbcType="VARCHAR" />
+		<result column="month" property="month" jdbcType="VARCHAR" />
+		<result column="countForFilm1" property="countForFilm1" jdbcType="INTEGER" />
+		<result column="countForFilm2" property="countForFilm1" jdbcType="INTEGER" />
+	</resultMap>
+	<!-- 根据用户名查询该用户是否存在 -->
+	<select id="getFilm_Info" parameterType="com.yz.model.Echart" resultMap="BaseResultMap">
+		  SELECT a.year,a.month ,ifnull(sb.countForFilm1,0)countForFilm1 FROM sys_date a LEFT JOIN 
+		  (SELECT DATE_FORMAT(b.end_date,"%Y%m") edate, COUNT(*)countForFilm1 FROM films b 
+		  WHERE b.film_type = #{film_type} GROUP BY DATE_FORMAT(b.end_date,"%Y%m") ) sb 
+		  ON CONCAT(a.year,a.month)= sb.edate WHERE a.year=#{year}
+	</select>
+	<!-- 查询影视总数 -->
+	<select id="getTotal" resultType="com.yz.model.dto.TotalDTO">
+		SELECT a.*,b.*,c.*,d.* FROM 
+		(SELECT COUNT(*) totalFilm FROM films)a,  
+		(SELECT COUNT(*) totalMovie FROM films WHERE film_type = 1)b, 
+		(SELECT COUNT(*) totalTV FROM films WHERE film_type = 2)c, 
+		(SELECT COUNT(*) totalActor FROM actors)d
+	</select>
+</mapper>

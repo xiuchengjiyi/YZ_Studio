@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yz.dao.UserMapper">
+
+	<resultMap id="BaseResultMap" type="com.yz.model.User">
+		<id column="user_id" property="user_id" jdbcType="VARCHAR" />
+		<result column="username" property="username" jdbcType="VARCHAR" />
+		<result column="password" property="password" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		user_id, username, password
+	</sql>
+	<!-- 根据用户名查询该用户是否存在 -->
+	<select id="selectUser" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List"></include>
+		from user
+		where username = #{username}
+	</select>
+	<!-- 新增用户 -->
+	<insert id="insertUser" parameterType="com.yz.model.User">
+		insert into user(
+		<include refid="Base_Column_List"></include>
+		) values(#{user_id},#{username},#{password})
+	</insert>
+</mapper>

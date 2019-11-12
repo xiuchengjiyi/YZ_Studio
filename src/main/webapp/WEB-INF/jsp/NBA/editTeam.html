@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>更新球队-休城记忆的管理系统</title>
+		<meta name="renderer" content="webkit">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+		<link rel="stylesheet" href="../../static/css/font.css">
+		<link rel="stylesheet" href="../../static/css/weadmin.css">
+		<!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+		<!--[if lt IE 9]>
+	      <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+	      <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+	    <![endif]-->
+	</head>
+
+	<body>
+		<div class="weadmin-body">
+			<form id="teamForm" class="layui-form" action="../../acTEAM!updateTeam.action">
+			<input type="hidden" id="id" name="id" />
+				<div class="layui-form-item">
+					<label for="L_teamName" class="layui-form-label">
+		                <span class="we-red">*</span>球队名称
+		            </label>
+					<div class="layui-input-inline">
+						<input style="width: 300px" type="text" id="L_teamName" name="teamName" lay-verify="required" autocomplete="off" class="layui-input">
+					</div>
+				</div>
+				<div class="layui-form-item">
+					<label for="L_location" class="layui-form-label">
+		                <span class="we-red">*</span>所属城市
+		            </label>
+					<div class="layui-input-inline">
+						<input style="width: 300px" type="text" id="L_location" name="location" lay-verify="required" autocomplete="off" class="layui-input">
+					</div>
+				</div>
+				<div class="layui-form-item">
+				    <label for="L_englishName" class="layui-form-label">
+				    	<span class="we-red">*</span>英文全称
+				    </label>
+				    <div class="layui-input-inline">
+				      	<input style="width: 300px" type="text" id="L_englishName" name="englishName" lay-verify="required" autocomplete="off" class="layui-input"/>
+				    </div>
+				</div>
+
+				<div class="layui-form-item">
+				    <label class="layui-form-label">所在赛区</label>
+				    <div class="layui-input-block">
+				      <select id="L_area"  name="area" lay-verify="required">
+				        <option value="">请选择</option>
+				        <option value="西南赛区">西南赛区</option>
+				        <option value="西北赛区">西北赛区</option>
+				        <option value="太平洋赛区">太平洋赛区</option>
+				        <option value="东南赛区">东南赛区</option>
+				        <option value="中部赛区">中部赛区</option>
+				         <option value="大西洋赛区">大西洋赛区</option>
+				      </select>
+				    </div>
+				</div>
+				
+				<div class="layui-form-item">
+				    <label class="layui-form-label">所在分部</label>
+				    <div class="layui-input-block">
+				      <select id="L_branch" name="branch" lay-verify="required">
+				        <option value="">请选择</option>
+				        <option value="东部">东部</option>
+				        <option value="西部">西部</option>
+				      </select>
+				    </div>
+				</div>
+				
+				<div class="layui-form-item layui-form-text">
+				    <label class="layui-form-label">球队标志</label>
+				    <div class="layui-input-block">
+				      	<textarea id="L_teamStandard" name="teamStandard" lay-verify="" placeholder="请输入球队标志图片链接" class="layui-textarea"></textarea>
+				    </div>
+				</div>
+				<div class="layui-form-item">
+					<button class="layui-btn" lay-filter="add" lay-submit="">确定</button>
+					<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+				</div>
+			</form>
+		</div>
+		<script src="../../lib/layui/layui.js" charset="utf-8"></script>
+		
+		<script>
+			layui.extend({
+				admin: '{/}../../static/js/admin'
+			});
+			layui.use(['form', 'jquery','util','admin', 'layer' ,'laydate'], function() {
+				var form = layui.form,
+					$ = layui.jquery,
+					util = layui.util,
+					admin = layui.admin,
+					laydate = layui.laydate,
+					layer = layui.layer;
+					
+				laydate.render({
+					elem: '#L_watchedate'
+				});
+
+				//自定义验证规则
+				form.verify({
+					
+				});
+				//失去焦点时判断值为空不验证，一旦填写必须验证
+				$('input[name="email"]').blur(function(){
+					//这里是失去焦点时的事件
+					if($('input[name="email"]').val()){
+						$('input[name="email"]').attr('lay-verify','email');
+					}else{
+						$('input[name="email"]').removeAttr('lay-verify');
+					}
+				});
+
+				//监听提交
+				form.on('submit(add)', function(data) {
+					
+					$.post(
+						"../../acTEAM!updateTeam.action",
+						$("#teamForm").serialize(),
+						function(data){
+							layer.alert("更新成功", {
+								icon: 6
+							}, function() {
+								//获取提交成功的时间
+								//var time = new Date();
+								//var timeNow = util.toDateString(time);
+								// 获得iframe索引
+								var index = parent.layer.getFrameIndex(window.name);
+								//关闭当前iframe
+								parent.layer.close(index);
+								var parent$ = window.parent.layui.jquery;//获取父页面的jQuery
+								var currpage = parent$(".layui-laypage-skip").find("input").val(); //当前页码值
+								parent.layui.table.reload('team_table',{page:{curr:currpage}});//刷新当前页面
+							});
+						}
+					);
+					//$(".layui-laypage-btn")[0].click();
+					return false;
+				});
+
+			});
+		</script>
+	</body>
+
+</html>

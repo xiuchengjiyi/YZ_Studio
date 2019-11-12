@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yz.dao.FilmMapper">
+
+	<resultMap id="BaseResultMap" type="com.yz.model.Film">
+		<id column="film_id" property="film_id" jdbcType="VARCHAR" />
+		<result column="film_name" property="film_name" jdbcType="VARCHAR" />
+		<result column="film_english" property="film_english" jdbcType="VARCHAR" />
+		<result column="film_type" property="film_type" jdbcType="VARCHAR" />
+		<result column="run_date" property="run_date" jdbcType="DATE" />
+		<result column="start_date" property="start_date" jdbcType="DATE" />
+		<result column="end_date" property="end_date" jdbcType="DATE" />
+		<result column="post_path" property="post_path" jdbcType="VARCHAR" />
+		<result column="jishu" property="jishu" jdbcType="VARCHAR" />
+		<result column="piaofang" property="piaofang" jdbcType="INTEGER" />
+		<result column="db_score" property="db_score" jdbcType="VARCHAR" />
+		<result column="recommend" property="recommend" jdbcType="VARCHAR" />
+		<result column="is_cinema" property="is_cinema" jdbcType="VARCHAR" />
+		<result column="ticket_path" property="ticket_path" jdbcType="VARCHAR" />
+		<result column="is_delete" property="is_delete" jdbcType="VARCHAR" />
+		<result column="cre_time" property="cre_time" jdbcType="TIMESTAMP" />
+		<result column="up_time" property="up_time" jdbcType="TIMESTAMP" />
+		<collection property="nationalities"  ofType="com.yz.model.Nationality" >
+			<id column="nat_id" property="nat_id" jdbcType="INTEGER" />
+			<result column="nationality" property="nationality" jdbcType="VARCHAR" />
+		</collection>
+		<collection property="actors" ofType="com.yz.model.Actor" >
+			<id column="ac_id" property="ac_id" jdbcType="VARCHAR" />
+			<result column="ac_name" property="ac_name" jdbcType="VARCHAR" />
+		</collection>
+		
+	</resultMap>
+	<!-- 查询所有影视剧数据 -->
+	<select id="selctAllFilms" parameterType="com.yz.model.dto.FilmDTO" resultMap="BaseResultMap">
+		select
+		f.film_id, f.film_name, f.film_english, f.film_type, f.run_date, f.start_date, f.end_date, f.post_path ,f.jishu,
+		f.piaofang, f.db_score,  f.recommend, f.is_delete, f.cre_time, f.up_time, f.is_cinema, f.ticket_path,
+		a.ac_id, a.ac_name, n.nat_id, n.nationality
+		from films f left join actor_film af on f.film_id = af.film_id
+		left join actors a on a.ac_id = af.ac_id 
+		left join film_nationality fn on fn.film_id = f.film_id 
+		left join nationality n on n.nat_id = fn.nat_id 
+		WHERE f.film_id IN(SELECT ids.film_id FROM (SELECT distinct f.film_id FROM  films f 
+		left join actor_film af on f.film_id = af.film_id
+		left join actors a on a.ac_id = af.ac_id 
+		left join film_nationality fn on fn.film_id = f.film_id 
+		left join nationality n on n.nat_id = fn.nat_id 
+		WHERE f.is_delete = 0
+    	AND f.film_type = #{film_type}
+    	<if test="film_name != null and film_name != '' ">
+    	AND (f.film_name like '%${film_name}%' or f.film_english like '%${film_name}%')
+    	</if>
+    	<if test="ac_id != null and ac_id != '' ">
+    	AND (a.ac_name like '%${ac_id}%' or a.english_name like '%${ac_id}%')
+    	</if>
+    	<if test="nat_id != null and nat_id != '' ">
+    	AND n.nat_id = #{nat_id}
+    	</if>
+    	<if test="is_cinema != null and is_cinema != '' ">
+    	AND f.is_cinema = #{is_cinema}
+    	</if>
+		<include refid="select_date"></include>
+		<include refid="select_db_score"></include>
+    	order by 
+    	<if test="rank == null or rank == '' ">
+    	f.cre_time
+    	</if>
+    	<if test="rank == 1 ">
+    	f.db_score desc
+    	</if>
+    	<if test="rank == 2 ">
+    	f.db_score
+    	</if>
+    	<if test="rank == 3 ">
+    	f.piaofang desc
+    	</if>
+    	 LIMIT #{page},#{limit})ids )
+    	order by 
+    	<if test="rank == null or rank == '' ">
+    	f.cre_time,
+    	</if>
+    	<if test="rank == 1 ">
+    	f.db_score desc,
+    	</if>
+    	<if test="rank == 2 ">
+    	f.db_score,
+    	</if>
+    	<if test="rank == 3 ">
+    	f.piaofang desc,
+    	</if>
+    	af.id,fn.id
+	</select>
+	<!-- 根据id查询单条数据 -->
+	<select id="getFilmByID" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select
+		f.film_id, f.film_name, f.film_english, f.film_type, f.run_date, f.start_date, f.end_date, f.post_path ,f.jishu,
+		f.piaofang, f.db_score,  f.recommend, f.is_delete, f.cre_time, f.up_time, f.is_cinema, f.ticket_path,
+		a.ac_id, a.ac_name, n.nat_id, n.nationality
+		from films f left join actor_film af on f.film_id = af.film_id
+		left join actors a on a.ac_id = af.ac_id 
+		left join film_nationality fn on fn.film_id = f.film_id 
+		left join nationality n on n.nat_id = fn.nat_id 
+		where f.is_delete = 0 and f.film_id = #{film_id}
+	</select>
+	<!-- 查询评分最高的10部 -->
+	<select id="getTop10" resultMap="BaseResultMap">
+		select f.film_id,f.film_name,f.film_english,f.film_type,f.db_score,f.post_path
+		from films f where f.is_delete = 0 order by f.db_score desc limit 0,10
+	</select>
+	<!-- 根据film_id获取更新前所有主演 -->
+	<select id="getAc_idByFilm_id" parameterType="java.lang.String" resultType="java.lang.String">
+		select ac_id from actor_film where film_id = #{film_id} order by ac_id asc
+	</select>
+	<!-- 根据film_id获取更新前所有制片地区 -->
+	<select id="getNat_idByFilm_id" parameterType="java.lang.String" resultType="java.lang.String">
+		select nat_id from film_nationality where film_id = #{film_id} order by nat_id asc
+	</select>
+	<!-- 查询数量 -->
+	<select id="getCount" parameterType="com.yz.model.dto.FilmDTO" resultType="java.lang.Integer">
+		select count(f.film_id) from films f where f.film_id IN(SELECT ids.film_id FROM (SELECT distinct f.film_id FROM  films f 
+		left join actor_film af on f.film_id = af.film_id
+		left join actors a on a.ac_id = af.ac_id 
+		left join film_nationality fn on fn.film_id = f.film_id 
+		left join nationality n on n.nat_id = fn.nat_id 
+		WHERE f.is_delete = 0
+    	AND f.film_type = #{film_type}
+    	<if test="film_name != null and film_name != '' ">
+    	AND (f.film_name like '%${film_name}%' or f.film_english like '%${film_name}%')
+    	</if>
+    	<if test="ac_id != null and ac_id != '' ">
+    	AND (a.ac_name like '%${ac_id}%' or a.english_name like '%${ac_id}%')
+    	</if>
+    	<if test="nat_id != null and nat_id != '' ">
+    	AND n.nat_id = #{nat_id}
+    	</if>
+    	<if test="is_cinema != null and is_cinema != '' ">
+    	AND f.is_cinema = #{is_cinema}
+    	</if>
+		<include refid="select_date"></include>
+		<include refid="select_db_score"></include>
+    	)ids )
+	</select>
+	<!-- 新增 -->
+	<insert id="insertFilm" parameterType="com.yz.model.Film">
+		insert into films(film_id,film_name,film_english,film_type,
+			<if test="run_date != null and run_date != '' ">run_date,</if>
+			<if test="start_date != null and start_date != '' ">start_date,</if>
+			<if test="end_date != null and end_date != '' ">end_date,</if>
+			post_path,jishu,
+			<if test="piaofang != null and piaofang != '' ">piaofang,</if>
+			db_score, recommend,is_delete,cre_time,up_time,is_cinema,ticket_path)
+		values(#{film_id},#{film_name},#{film_english},#{film_type},
+			<if test="run_date != null and run_date != '' ">str_to_date(#{run_date},'%Y-%m-%d'),</if>
+			<if test="start_date != null and start_date != '' ">str_to_date(#{start_date},'%Y-%m-%d'),</if>
+			<if test="end_date != null and end_date != '' ">str_to_date(#{end_date},'%Y-%m-%d'),</if>
+			#{post_path},#{jishu},
+			<if test="piaofang != null and piaofang != '' ">#{piaofang},</if>
+			#{db_score},#{recommend},#{is_delete},NOW(),#{up_time},#{is_cinema},#{ticket_path})
+	</insert>
+	<!-- 新增演员电影关联表 -->
+	<insert id="insertFilmActor" >
+		insert into actor_film(ac_id,film_id) values(#{ac_id},#{film_id})
+	</insert>
+	<!-- 新增制片地区电影关联表 -->
+	<insert id="insertFilmNationality" >
+		insert into film_nationality(nat_id,film_id) values(#{nat_id},#{film_id})
+	</insert>
+	<!-- 根据id更新数据 -->
+	<update id="updateFilmByID" parameterType="com.yz.model.Film">
+		update films set film_name = #{film_name},film_english = #{film_english},film_type = #{film_type},
+			<if test="run_date != null and run_date != '' ">run_date = str_to_date(#{run_date},'%Y-%m-%d'),</if>
+			<if test="start_date != null and start_date != '' ">start_date = str_to_date(#{start_date},'%Y-%m-%d'),</if>
+			<if test="end_date != null and end_date != '' ">end_date = str_to_date(#{end_date},'%Y-%m-%d'),</if>
+			<if test="piaofang != null and piaofang != '' ">piaofang = #{piaofang},</if>
+			post_path = #{post_path},jishu = #{jishu},db_score = #{db_score},is_cinema = #{is_cinema},
+			ticket_path = #{ticket_path},up_time = NOW() where film_id = #{film_id}
+	</update>
+	<!-- 根据id更新数据 -->
+	<update id="updateRecommend" parameterType="com.yz.model.dto.FilmDTO">
+		update films set recommend = #{recommend} where film_id = #{film_id}
+	</update>
+	<!-- 根据film_id删除该电影所有主演 -->
+	<delete id="deleteActorsByFilm_id" parameterType="java.lang.String">
+		delete from actor_film where film_id = #{film_id}
+	</delete>
+	<!-- 根据film_id删除该电影所有制片地区 -->
+	<delete id="deleteNatsByFilm_id" parameterType="java.lang.String">
+		delete from film_nationality where film_id = #{film_id}
+	</delete>
+	<sql id="select_date">
+		<if test="film_type == 1">
+			<if test="start_date != null and start_date != '' ">
+				and f.end_date >= str_to_date(#{start_date},'%Y-%m-%d')
+			</if>
+			<if test="end_date != null and end_date != '' ">
+				and  str_to_date(#{end_date},'%Y-%m-%d') >= f.end_date
+			</if>
+		</if>
+		<if test="film_type == 2">
+			<if test="start_date != null and start_date != '' ">
+				and f.end_date >= str_to_date(#{start_date},'%Y-%m-%d')
+			</if>
+			<if test="end_date != null and end_date != '' ">
+				and  str_to_date(#{end_date},'%Y-%m-%d') >= f.start_date
+			</if>
+		</if>
+	</sql>
+	<!-- 搜索豆瓣评分条件 -->
+	<sql id="select_db_score">
+		<if test="db_score != null and db_score !='' ">
+			<if test="db_score == 1 ">
+				and f.db_score >= 9
+			</if>
+			<if test="db_score == 2 ">
+				and f.db_score >= 8 and f.db_score &lt; 9
+			</if>
+			<if test="db_score == 3 ">
+				and f.db_score >= 7 and f.db_score &lt; 8
+			</if>
+			<if test="db_score == 4 ">
+				and f.db_score >= 6 and f.db_score &lt; 7
+			</if>
+			<if test="db_score == 5 ">
+				and f.db_score >= 5 and f.db_score &lt; 6
+			</if>
+			<if test="db_score == 6 ">
+				and f.db_score >= 4 and f.db_score &lt; 5
+			</if>
+			<if test="db_score == 7 ">
+				and f.db_score &lt; 4
+			</if>
+		</if>
+	</sql>
+</mapper>

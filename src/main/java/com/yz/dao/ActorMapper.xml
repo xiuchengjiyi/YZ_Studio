@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yz.dao.ActorMapper">
+
+	<resultMap id="BaseResultMap" type="com.yz.model.Actor">
+		<id column="ac_id" property="ac_id" jdbcType="VARCHAR" />
+		<result column="ac_name" property="ac_name" jdbcType="VARCHAR" />
+		<result column="english_name" property="english_name" jdbcType="VARCHAR" />
+		<result column="sex" property="sex" jdbcType="VARCHAR" />
+		<result column="birthday" property="birthday" jdbcType="DATE" />
+		<result column="age" property="age" jdbcType="VARCHAR" />
+		<result column="ac_picture" property="ac_picture" jdbcType="VARCHAR" />
+		<result column="cre_time" property="cre_time" jdbcType="TIMESTAMP" />
+		<association property="nationality" column="birth_place" javaType="com.yz.model.Nationality">
+			<id column="nat_id" property="nat_id" jdbcType="INTEGER"/>
+			<result column="nationality" property="nationality" jdbcType="VARCHAR" />
+		</association>
+		<collection property="films"  ofType="com.yz.model.Film" >
+			<id column="film_id" property="film_id" jdbcType="VARCHAR" />
+			<result column="film_name" property="film_name" jdbcType="VARCHAR" />
+			<result column="db_score" property="db_score" jdbcType="VARCHAR" />
+			<result column="post_path" property="post_path" jdbcType="VARCHAR" />
+		</collection>
+	</resultMap>
+	<sql id="Base_Column_List">
+		ac_id, ac_name, english_name, sex, birthday, birth_place, age, ac_picture ,is_delete,cre_time
+	</sql>
+	<!-- 查询所有演员数据 -->
+	<select id="selectActorList" parameterType="com.yz.model.dto.ActorDTO" resultMap="BaseResultMap">
+		select
+		a.ac_id, a.ac_name, a.english_name, a.sex, a.birthday, a.birth_place, a.age, a.ac_picture ,a.is_delete,
+		b.nationality
+		from actors a
+		left join nationality b on a.birth_place = b.nat_id
+		where a.is_delete = 0 
+		<if test="ac_name != null and ac_name != '' ">
+		and (a.ac_name like '%${ac_name}%' or a.english_name like '%${ac_name}%')
+		</if>
+		<if test="birth_place != null and birth_place != '' ">
+		and a.birth_place = #{birth_place}
+		</if>
+		<if test="sex != null and sex != '' ">
+		and a.sex = #{sex}
+		</if>
+		 order by a.cre_time 
+		<if test="page != null and limit != null">
+		limit #{page},#{limit} 
+		</if>
+		
+	</select>
+	
+	<!-- 根据id查询演员信息 -->
+	<select id="getActorByID" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select
+		a.ac_id, a.ac_name, a.english_name, a.sex, a.birthday, a.birth_place, a.age, a.ac_picture ,a.is_delete,
+		b.nationality,b.nat_id
+		from actors a
+		left join nationality b on a.birth_place = b.nat_id
+		where a.ac_id = #{ac_id}
+		and a.is_delete = 0
+	</select>
+	<!-- 根据id查询演员信息包括作品信息 -->
+	<select id="getActorWithFilmByID" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select
+		a.ac_id, a.ac_name, a.english_name, a.sex, a.birthday, a.birth_place, a.age, a.ac_picture ,a.is_delete,
+		b.nationality,b.nat_id,f.post_path,f.film_name,f.db_score
+		from actors a
+		left join nationality b on a.birth_place = b.nat_id
+		left join actor_film af on a.ac_id = af.ac_id
+		left join films f on af.film_id = f.film_id
+		where a.ac_id = #{ac_id}
+		and a.is_delete = 0
+		order by f.db_score desc
+	</select>
+	<!-- 查询演员总数 -->
+	<select id="selectActorCount" parameterType="com.yz.model.dto.ActorDTO" resultType="java.lang.Integer">
+		select count(a.ac_id) from actors a where a.is_delete = 0 
+		<if test="ac_name != null and ac_name != '' ">
+		and (a.ac_name like '%${ac_name}%' or a.english_name like '%${ac_name}%')
+		</if>
+		<if test="birth_place != null and birth_place != '' ">
+		and a.birth_place = #{birth_place}
+		</if>
+		<if test="sex != null and sex != '' ">
+		and a.sex = #{sex}
+		</if>
+	</select>
+	<!-- 新增演员 -->
+	<insert id="insertActor" parameterType="com.yz.model.Actor">
+		insert into actors(<include refid="Base_Column_List"></include>)
+		values(#{ac_id},#{ac_name},#{english_name},#{sex},#{birthday},#{birth_place},#{age},#{ac_picture},#{is_delete},NOW())
+	</insert>
+	<!-- 根据id更新演员信息 -->
+	<update id="updateActorById" parameterType="com.yz.model.Actor">
+		update actors set ac_name = #{ac_name}, english_name = #{english_name}, sex = #{sex},
+		birthday = #{birthday}, birth_place = #{birth_place}, age = #{age}, ac_picture = #{ac_picture}
+		where ac_id = #{ac_id}
+	</update>
+	<!-- 根据id更新演员信息 -->
+	<update id="deleteActorById" parameterType="java.lang.String">
+		update actors set is_delete = 1 
+		where ac_id = #{ac_id}
+	</update>
+	<!-- 影视剧查询关联演员 -->
+	<select id="selectActorForFilm" resultMap="BaseResultMap">
+		select
+		a.ac_id, a.ac_name
+		from actors a
+		left join actor_film b on a.ac_id = b.film_id
+		where  a.is_delete = 0
+	</select>
+	<!-- 影视剧查询关联演员 -->
+	<select id="checkActor"  resultMap="BaseResultMap">
+		select
+		 a.ac_name
+		from actors a
+		where  a.is_delete = 0 and a.ac_name like '%${ac_name}%'
+	</select>
+
+</mapper>
