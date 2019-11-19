@@ -104,19 +104,19 @@ pageEncoding="UTF-8"%>
 						</a>
 						<ul class="sub-menu">
 							<li>
-								<a _href="NBA/playerlist.html">
+								<a _href="nba/player/playerList">
 									<i class="iconfont">&#xe6a7;</i>
 									<cite>球员</cite>
 								</a>
 							</li>
 							<li>
-								<a _href="NBA/gamelist.html">
+								<a _href="nba/game/gameList">
 									<i class="iconfont">&#xe6a7;</i>
 									<cite>赛程</cite>
 								</a>
 							</li>
 							<li>
-								<a _href="article/category.html">
+								<a _href="nba/shuju/shujuList">
 									<i class="iconfont">&#xe6a7;</i>
 									<cite>数据</cite>
 								</a>

@@ -1,14 +1,17 @@
+<%@pagelanguage="java" contentType="text/html;charset=UTF-8" 
+pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 
 	<head>
 		<meta charset="UTF-8">
-		<title>火箭赛程列表-休城记忆的管理系统</title>
+		<title>赛程列表-休城记忆的管理系统</title>
 		<meta name="renderer" content="webkit">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
-		<link rel="stylesheet" href="../../static/css/font.css">
-		<link rel="stylesheet" href="../../static/css/weadmin.css">
+		<link rel="stylesheet" href="${pageContext.request.contextPath }/css/font.css">
+		<link rel="stylesheet" href="${pageContext.request.contextPath }/css/weadmin.css">
 		<!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
 		<!--[if lt IE 9]>
 	      <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
@@ -46,70 +49,36 @@
 		<div class="weadmin-body">
 			<div class="layui-row">
 				<form class="layui-form layui-col-md12 we-search" onsubmit="return false"> 
-					
-					球队名称：
-					<div class="layui-inline">
-						<input style="width: 200px" type="text" id="teamName" name="teamName" placeholder="如：火箭" class="layui-input">
+					日期
+					<div class="layui-input-inline">
+						    <button type="button" style="float: left;" data-type="before" id="before" class="layui-btn layui-btn-primary">前一天</button>
+						    <input type="text" style="width:100px;float: left;" value="" id="game_date" name="game_date"  autocomplete="off" class="layui-input">
+						    <button type="button" data-type="last" id="last" class="layui-btn layui-btn-primary">后一天</button>
 					</div>
-					所在赛区：
-					<div class="layui-inline">
-						<select id="area"  lay-search>
-							<option value="">请选择</option>
-							<option value="西南赛区">西南赛区</option>
-					        <option value="西北赛区">西北赛区</option>
-					        <option value="太平洋赛区">太平洋赛区</option>
-					        <option value="东南赛区">东南赛区</option>
-					        <option value="中部赛区">中部赛区</option>
-					        <option value="大西洋赛区">大西洋赛区</option>
-						</select>
-					</div>
-					所在分部：
-					<div class="layui-inline">
-						<select id="branch">
-							<option value="">请选择</option>
-					        <option value="东部">东部</option>
-					        <option value="西部">西部</option>
-						</select>
-					</div>
+					球队赛程：
+					<div class="layui-input-inline">
+				      <select id="select_team" name="select_team" lay-filter="select_team"  lay-search>
+				      <option value="">请选择</option>
+				      <c:forEach items="${teams }" var="team">
+				      	<option value="${team.team_id }">${team.team_name }</option>
+				      </c:forEach>
+				      </select>
+				    </div>
 					<button class="layui-btn" data-type="reloadTable" id="searchBtn"><i class="layui-icon">&#xe615;搜索</i></button>
+					<button class="layui-btn" id="addPlayer" data-type="addPlayer"><i class="layui-icon"></i>添加</button>
+					<span class="fr" id="count" style="line-height:40px"></span>
 				</form> 
 			</div>
-			<div class="weadmin-block">
-				<!-- <button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon"></i>批量删除</button> -->
-				<button class="layui-btn" id="addPlayer" data-type="addPlayer"><i class="layui-icon"></i>添加</button>
-				<span class="fr" id="count" style="line-height:40px"></span>
-			</div>
-			<!-- <div class="layui-inline">
-			<option value="0">西部</option>
-			<option value="1">东部</option>
-			<option value="2">南部</option>
-			<option value="3">北部</option>
-			<option value="4">上部</option>
-			<option value="5">下部</option>
-			<option value="6">顶部</option>
-			<option value="7">底部</option>
-			<option value="8">东南</option>
-			<option value="9">西北</option>
-			玉藻前、大天狗、鬼切、辉夜姬、茨木童子、酒吞童子、御馔津、彼岸花、雪童子、白藏主、两面佛、妖刀姬、青行灯、小鹿男、阎魔、山风、奴良陆生、荒、荒川之主、面灵气、
-			八歧大蛇、一目连、花鸟卷、犬夜叉、杀生丸、桔梗、鬼灯、卖药郎、少羽大天狗、炼狱茨木童子、苍风一目连、稻荷神御馔津
-			日和坊、般若、追月神、
-			</div>hunzhinuhuo
-			 -->
-		
 
-			<table id="player_table" lay-filter="playerTable"></table>
+			<table id="game_table" lay-filter="gameTable"></table>
 
 		</div>
-		<script type="text/html" id="recommendTpl">
-			<input type="checkbox" name="zzz" lay-skin="switch" lay-text="是|否" {{d.recommend}}>
-					</script>
-		<script type="text/html" id="photo">
-			<img src="{{d.photo}}" style="width:60px;height:80px" />
+		<script type="text/html" id="away_team_name">
+			<img src="{{'data:image/jpg;base64,'+d.away_team_photo}}" style="width:60px;height:60px" />  &nbsp;  {{d.away_team_name}}
 		</script>
-		<script type="text/html" id="reviewTpl">
-			<!-- 这里的 checked 的状态只是演示 -->
-					  <input type="checkbox" name="lock" value="{{d.id}}" title="锁定" lay-filter="lockDemo" {{ d.id == 1 ? 'checked' : '' }}>
-					</script>
+		<script type="text/html" id="home_team_name">
+			{{d.home_team_name}}&nbsp; <img src="{{'data:image/jpg;base64,'+d.home_team_photo}}" style="width:60px;height:60px" />    
+		</script>
 		<script type="text/html" id="data_details">
 			<a lay-event="data_details">查看数据</a>
 		</script>
@@ -126,12 +95,13 @@
   			</div>
 		</script>
 		<!--<script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>-->
-		<script src="../../lib/layui/layui.js" charset="utf-8"></script>
-		<script src="../../static/js/eleDel.js" type="text/javascript" charset="utf-8"></script>
-
+		<script src="${pageContext.request.contextPath }/lib/layui/layui.js" charset="utf-8"></script>
+		<script src="${pageContext.request.contextPath }/js/eleDel.js" type="text/javascript" charset="utf-8"></script>
+		<script src="${pageContext.request.contextPath }/js/admin.js" type="text/javascript" charset="utf-8"></script>
+		<script src="${pageContext.request.contextPath }/js/utils.js" type="text/javascript" charset="utf-8"></script>
 		<script>
 			layui.extend({
-				admin: '{/}../../static/js/admin'
+				admin: '${pageContext.request.contextPath }/js/admin'
 			});
 
 			layui.use(['table', 'jquery', 'form', 'admin','laydate','layer'], function() {
@@ -141,18 +111,25 @@
 					laydate = layui.laydate,
 					admin = layui.admin,
 					layer = layui.layer;
+				
+				$(function(){  
+					var today = new Date();
+					$("#game_date").val(getDateStr(today));
+				})
 					
-					
+				laydate.render({
+					elem: '#game_date'
+				});
 
 				table.render({
-					elem: '#player_table',
-					url: '../../acGAME!getGameList.action',
+					elem: '#game_table',
+					url: 'games?game_date='+$("#game_date").val(),
 					cols: [
 						[{
 							title: '序号',
 							type: 'numbers'
 						}, {
-							field: 'date',
+							field: 'game_date',
 							title: '时间',
 							width: 200,
 							align: 'center'
@@ -162,33 +139,43 @@
 							width: 200,
 							align: 'center',
 							templet: function(data){
-								if(data.game_type == 'c'){
+								if(data.game_type == '1'){
 									return "常规赛";
-								}else if(data.game_type == 'q'){
+								}else if(data.game_type == '3'){
 									return "季前赛";
-								}else if(data.game_type == 'h'){
+								}else if(data.game_type == '2'){
 									return "季后赛";
 								}
 							}
 						}, {
-							field: 'away_name',
-							title: '客队',
+							field: 'status',
+							title: '状态',
 							width: 170,
 							align: 'center',
 							templet: function(data){
-								return "<img src = '"+data.away_photo+"' style='width:50px;height:50px;'></img>&nbsp;&nbsp;&nbsp;&nbsp;"+data.away_name;
+								if(data.status == '已结束' || data.status == '未开始'){
+									return data.status;
+								}else{
+									return "<span style='color:red;'>"+data.status+"</span>";
+								}
 							}
+						}, {
+							field: 'away_team_name',
+							title: '客队',
+							width: 170,
+							align: 'center',
+							templet: '#away_team_name'
 						}, {
 							field: 'score',
 							title: '比分',
 							width: 170,
 							align: 'center',
 							templet: function(data){
-								if(data.home_socre != null && data.away_score != null){
-									if(data.home_socre > data.away_score){
-										return data.away_score+" - <strong>"+data.home_socre+"</strong>";
+								if(data.home_score != null && data.away_score != null){
+									if(data.home_score > data.away_score){
+										return data.away_score+" - <strong>"+data.home_score+"</strong>";
 									}else{
-										return "<strong>"+data.away_score+"</strong> - "+data.home_socre;
+										return "<strong>"+data.away_score+"</strong> - "+data.home_score;
 									}
 								}else{
 									return "-";
@@ -196,13 +183,11 @@
 								
 							}
 						}, {
-							field: 'home_name',
+							field: 'home_team_name',
 							title: '主队',
 							width: 170,
 							align: 'center',
-							templet: function(data){
-								return data.home_name+"&nbsp;&nbsp;&nbsp;&nbsp;<img src = '"+data.home_photo+"' style='width:50px;height:50px;'></img>";
-							}
+							templet: '#home_team_name'
 						}, {
 							field: 'result',
 							title: '赛果',
@@ -237,15 +222,11 @@
 					toolbar: '#toolbarDemo',
 					event: true,
 					page: true,
-					limit: 10,
-					limits: [10, 15, 30],
+					limit: 15,
+					limits: [15, 30],
 					done:function(res,curr,count){
 						$("#count").html("共有数据："+res.count+"条");//获取当前表的总记录数
 		                //hoverOpenImg();//显示大图
-		                $('table tr').on('click',function(){
-		                     $('table tr').css('background','');
-		                     $(this).css('background','<%=PropKit.use("config.properties").get("table_color")%>');
-		                 });
 		            }
 				});
 				/*
@@ -275,13 +256,13 @@
 				
 				
 				//事件监听,监听行工具条用tool，监听头工具条用toolbar
-				table.on('tool(playerTable)',function(obj){ //teamTable为table的lay-filter
+				table.on('tool(gameTable)',function(obj){ //teamTable为table的lay-filter
 					 var data = obj.data // 获得当前行数据
        				 , layEvent = obj.event; // 获得 lay-event 对应的值
 					if(layEvent == 'update'){
 						layer.open({
 							type : 2,
-				            content : './editGame.html',
+				            content : 'editGameScore?game_id='+data.game_id,
 				            area : [ '800px', '300px' ],
 				            maxmin : true,
 				            title : '更新比分',
@@ -305,24 +286,62 @@
 				var active = {
 					reloadTable: function() {
 							
-							table.reload('team_table',{
+							table.reload('game_table',{
+								url : "games",
 								where:{
-									teamName: $("#teamName").val(),
-									area: $("#area option:selected").val(),
-									branch: $("#branch option:selected").val()
+									select_team: $("#select_team").val(),
+									game_date: $("#game_date").val(),
 								}
 								,page: {
 								    curr: 1 //重新从第 1 页开始
 								}
 							});
 					},
+					before: function() {//查询前一天赛程
+						var game_date = $("#game_date").val();
+						game_date = game_date.replace(/-/g, '/'); // "2010/08/01";
+						// 创建日期对象
+						var date = new Date(game_date);
+						// 减一天
+						date.setDate(date.getDate() - 1);
+						game_date = getDateStr(date);
+						$("#game_date").val(game_date);
+						table.reload('game_table',{
+							url : "games",
+							where:{
+								game_date: game_date,
+							}
+							,page: {
+							    curr: 1 //重新从第 1 页开始     此心向紫
+							}
+						});
+					},
+					last: function() {//查询前一天赛程
+						var game_date = $("#game_date").val();
+						game_date = game_date.replace(/-/g, '/'); // "2010/08/01";
+						// 创建日期对象
+						var date = new Date(game_date);
+						// 减一天
+						date.setDate(date.getDate() + 1);
+						game_date = getDateStr(date);
+						$("#game_date").val(game_date);
+						table.reload('game_table',{
+							url : "games",
+							where:{
+								game_date: game_date,
+							}
+							,page: {
+							    curr: 1 //重新从第 1 页开始
+							}
+						});
+					},
 					addPlayer: function() {
 						layer.open({
 							type: 2, //Layer提供了5种层类型。可传入的值有：0（信息框，默认）1（页面层）2（iframe层）3（加载层）4（tips层）,
 						    title: '增加比赛',   //标题
-						    area: ['600px', '500px'],   //宽高
+						    area: ['800px', '600px'],   //宽高
 						    shade: 0.4,   //遮罩透明度
-						    content: './addGame.jsp',//支持获取DOM元素
+						    content: 'addGame',//支持获取DOM元素
 						    //btn: ['确定', '取消'], //按钮组
 						    scrollbar: false ,//屏蔽浏览器滚动条
 						    yes: function(index){//layer.msg('yes');    //点击确定回调
@@ -334,62 +353,8 @@
 						        
 						    }
 						});
-					},
-					exportData: function(){
-						jsonurl = "../../acTEAM!getTeamExel.action?start="+$("#start").val()+"&end="+$("#end").val()
-							+"&teamname="+$("#teamname").val()+"&country="+$("#country option:selected").val()
-							+"&performers="+$("#performers option:selected").val();
-						$.get(
-							jsonurl,
-							function(data){
-								var obj = new Function("return" + data)();//转换后的JSON对象
-								table.exportFile(obj.extitle, obj.exdata); //默认导出 csv，也可以为：xls
-							}
-						); 
-					},
-					getCheckData: function() { //获取选中数据
-						var checkStatus = table.checkStatus('articleList'),
-							data = checkStatus.data;
-						//console.log(data);
-						//layer.alert(JSON.stringify(data));
-						if (data.length > 0) {
-							layer.confirm('确认要删除吗？' + JSON.stringify(data), function(index) {
-								layer.msg('删除成功', {
-									icon: 1
-								});
-								//找到所有被选中的，发异步进行删除
-								$(".layui-table-body .layui-form-checked").parents('tr').remove();
-							});
-						} else {
-							layer.msg("请先选择需要删除的文章！");
-						}
-
-					},
-					Recommend: function() {
-						var checkStatus = table.checkStatus('articleList'),
-							data = checkStatus.data;
-						if (data.length > 0) {
-							layer.msg("您点击了推荐操作");
-							for (var i = 0; i < data.length; i++) {
-								console.log("a:" + data[i].recommend);
-								data[i].recommend = "checked";
-								console.log("aa:" + data[i].recommend);
-								form.render();
-							}
-
-						} else {
-							console.log("b");
-							layer.msg("请先选择");
-						}
-
-						//$(".layui-table-body .layui-form-checked").parents('tr').children().children('input[name="zzz"]').attr("checked","checked");
-					},
-					Top: function() {
-						layer.msg("您点击了置顶操作");
-					},
-					Review: function() {
-						layer.msg("您点击了审核操作");
 					}
+					
 
 				};
 
@@ -402,6 +367,14 @@
 		           var type = $(this).data('type');
 		           active[type] ? active[type].call(this) : '';
 		       });
+				$('#before').on('click',function(){
+			           var type = $(this).data('type');
+			           active[type] ? active[type].call(this) : '';
+			       });
+				$('#last').on('click',function(){
+			           var type = $(this).data('type');
+			           active[type] ? active[type].call(this) : '';
+			       });
 		       
 		       $('#addPlayer').on('click',function(){
 		           var type = $(this).data('type');
@@ -473,3 +446,4 @@
 	</body>
 
 </html>
+

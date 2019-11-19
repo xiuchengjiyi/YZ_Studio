@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yz.dao.RecordMapper">
+
+	<resultMap id="BaseResultMap" type="com.yz.model.Record">
+		<result column="team_id" property="team_id" jdbcType="VARCHAR" />
+		<result column="team_name" property="team_name" jdbcType="VARCHAR" />
+		<result column="season" property="season" jdbcType="VARCHAR" />
+		<result column="branch" property="branch" jdbcType="VARCHAR" />
+		<result column="win" property="win" jdbcType="INTEGER" />
+		<result column="lost" property="lost" jdbcType="INTEGER" />
+		<result column="win_rate" property="win_rate" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 查询所有比赛 -->
+	<select id="selectRecords" parameterType="com.yz.model.Record" resultMap="BaseResultMap">
+		select r.team_id,t.team_name,r.win,r.lost,r.win_rate,t.branch,r.season
+		from record_list r left join teams t on r.team_id = t.team_id 
+		where r.season = #{season} and t.branch = #{branch}
+		order by win_rate desc
+		
+	</select>
+	
+	<!-- 根据id查询球队战绩 -->
+	<select id="selectRecordByTeam_id" parameterType="com.yz.model.Record" resultMap="BaseResultMap">
+		select
+		r.team_id,t.team_name,r.season,r.win,r.lost,r.win_rate
+		from record_list r left join teams t on r.team_id = t.team_id 
+		
+		where r.team_id = #{team_id} and r.season = #{season}
+		
+	</select>
+	
+	
+	
+	<!-- 新增球队战绩 -->
+	<insert id="insertRecord" parameterType="com.yz.model.Record">
+		insert into record_list(team_id,season,win,lost,win_rate)
+		values(#{team_id},#{season},#{win},#{lost},#{win_rate})
+	</insert>
+	
+	<!-- 更新球队战绩 -->
+	<update id="updateRecord" parameterType="com.yz.model.Record">
+		update record_list set win = #{win},lost = #{lost},win_rate = #{win_rate}
+		where team_id = #{team_id} and season = #{season}
+	</update>
+
+</mapper>

@@ -5,7 +5,7 @@ pageEncoding="UTF-8"%>
 <html>
 <head>
   <meta charset="utf-8">
-  <title>互联网医院管理系统</title>
+  <title>休城记忆管理系统</title>
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
@@ -17,6 +17,15 @@ pageEncoding="UTF-8"%>
     
   </script>
 </head>
+<style>
+	table{
+		line-height: 38px;
+	}
+	tr td{
+		font-size: 20px;
+	}
+</style>
+
 <body>
   
   <div class="layui-fluid">
@@ -132,36 +141,64 @@ pageEncoding="UTF-8"%>
       
       <div class="layui-col-md4">
         <div class="layui-card">
-          <div class="layui-card-header">信息中心 <a onclick="newsall()" href="javascript:void(0)" class="ml-40 radius">更多...</a></div>
-          <div class="layui-card-body layui-text" style="height: 185px">
-          </div>
-        </div>
-        
-        <div class="layui-card">
-          <div class="layui-card-header">效果报告</div>
-          <div class="layui-card-body layadmin-takerates">
-            <div class="layui-progress" lay-showPercent="yes">
-              <h3>网络挂号（日同比 28% <span class="layui-edge layui-edge-top" lay-tips="增长" lay-offset="-15"></span>）</h3>
-              <div class="layui-progress-bar" lay-percent="15%"></div>
-            </div>
-            <div class="layui-progress" lay-showPercent="yes">
-              <h3>移动支付（日同比 11% <span class="layui-edge layui-edge-bottom" lay-tips="下降" lay-offset="-15"></span>）</h3>
-              <div class="layui-progress-bar" lay-percent="12%"></div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="layui-card">
-          <div class="layui-card-header">好评监控</div>
-          <div class="layui-card-body layadmin-takerates">
-            <div class="layui-progress" lay-showPercent="no">
-              <h3>态度</h3>
-              <div class="layui-progress-bar" lay-percent="7.3/10">7.3</div>
-            </div>
-            <div class="layui-progress" lay-showPercent="yes">
-              <h3>服务</h3>
-              <div class="layui-progress-bar layui-bg-red" lay-percent="90%"></div>
-            </div>
+          <div class="layui-card-header">NBA战绩榜</div>
+          <div class="layui-card-body layui-text" style="height: 700px">
+          	<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+			  <ul class="layui-tab-title">
+			    <li class="layui-this" style="width:45%;">东部</li>
+			    <li style="width:45%;">西部</li>
+			  </ul>
+			  <div class="layui-tab-content" style="width:100%;">
+			    <div class="layui-tab-item layui-show" style="">
+			    	<table style="width:100%;">
+			    		<thead>
+			    			<td style="width: 10%;text-align: center;">排名</td>
+			    			<td style="width: 30%;text-align: center;">球队</td>
+			    			<td style="width: 20%;text-align: center;">胜</td>
+			    			<td style="width: 20%;text-align: center;">负</td>
+			    			<td style="width: 20%;text-align: center;">胜率</td>
+			    		</thead>
+			    		<c:forEach items="${east_records }" var="record" varStatus="i">
+			    			<c:if test="${record.branch == 1 }">
+			    			<tr>
+				    			<td style="width: 10%;text-align: center;">${i.index + 1 }</td>
+				    			<td style="width: 10%;text-align: center;">${record.team_name }</td>
+				    			<td style="width: 10%;text-align: center;">${record.win }</td>
+				    			<td style="width: 10%;text-align: center;">${record.lost }</td>
+				    			<td style="width: 10%;text-align: center;">${record.win_rate }</td>
+				    		</tr>
+			    			</c:if>
+			    		</c:forEach>
+			    		
+			    		
+			    	</table>
+			    </div>
+			    <div class="layui-tab-item">
+					<table style="width:100%;">
+			    		<thead>
+			    			<td style="width: 10%;text-align: center;">排名</td>
+			    			<td style="width: 30%;text-align: center;">球队</td>
+			    			<td style="width: 20%;text-align: center;">胜</td>
+			    			<td style="width: 20%;text-align: center;">负</td>
+			    			<td style="width: 20%;text-align: center;">胜率</td>
+			    		</thead>
+			    		<c:forEach items="${west_records }" var="record" varStatus="i">
+			    			<c:if test="${record.branch == 2 }">
+			    			<tr>
+				    			<td style="width: 10%;text-align: center;">${i.index + 1 }</td>
+				    			<td style="width: 10%;text-align: center;">${record.team_name }</td>
+				    			<td style="width: 10%;text-align: center;">${record.win }</td>
+				    			<td style="width: 10%;text-align: center;">${record.lost }</td>
+				    			<td style="width: 10%;text-align: center;">${record.win_rate }</td>
+				    		</tr>
+			    			</c:if>
+			    		</c:forEach>
+			    		
+			    		
+			    	</table>
+				</div>
+			  </div>
+			</div> 
           </div>
         </div>
         

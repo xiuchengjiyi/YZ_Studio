@@ -66,6 +66,12 @@ public class EchartServiceImpl implements EchartService{
 		TotalDTO total = echartMapper.getTotal();
 		return total;
 	}
+
+	//查询NBA球队战绩
+	public List<TotalDTO> getnbaTeamRank() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 	
 

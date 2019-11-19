@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yz.dao.GameMapper">
+
+	<resultMap id="BaseResultMap" type="com.yz.model.Game">
+		<id column="game_id" property="game_id" jdbcType="VARCHAR" />
+		<result column="game_date" property="game_date" jdbcType="TIMESTAMP" />
+		<result column="game_type" property="game_type" jdbcType="VARCHAR" />
+		<result column="home_score" property="home_score" jdbcType="INTEGER" />
+		<result column="away_score" property="away_score" jdbcType="INTEGER" />
+		<association property="home_team" column="home_team" javaType="com.yz.model.Team">
+			<id column="team_id1" property="team_id" jdbcType="INTEGER"/>
+			<result column="team_name1" property="team_name" jdbcType="VARCHAR" />
+			<result column="photo_path1" property="photo_path" jdbcType="VARCHAR" />
+		</association>
+		<association property="away_team" column="away_team" javaType="com.yz.model.Team">
+			<id column="team_id2" property="team_id" jdbcType="INTEGER"/>
+			<result column="team_name2" property="team_name" jdbcType="VARCHAR" />
+			<result column="photo_path2" property="photo_path" jdbcType="VARCHAR" />
+		</association>
+		<association property="win_team" column="win_team" javaType="com.yz.model.Team">
+			<id column="team_id3" property="team_id" jdbcType="INTEGER"/>
+			<result column="team_name3" property="team_name" jdbcType="VARCHAR" />
+			<result column="photo_path3" property="photo_path" jdbcType="VARCHAR" />
+		</association>
+		<association property="season" column="season" javaType="com.yz.model.Season">
+			<id column="season_id" property="season_id" jdbcType="INTEGER"/>
+			<result column="season" property="season" jdbcType="VARCHAR" />
+		</association>
+	</resultMap>
+	
+	<!-- 查询所有比赛 -->
+	<select id="getGames" parameterType="com.yz.model.dto.GameDTO" resultMap="BaseResultMap">
+		select
+		g.game_id, DATE_FORMAT(g.game_date,'%Y-%m-%d %H:%i:%s')game_date, g.game_type, g.home_score, g.away_score,
+		t1.team_id team_id1,t1.team_name team_name1,t1.photo_path photo_path1,
+		t2.team_id team_id2,t2.team_name team_name2,t2.photo_path photo_path2,
+		t3.team_id team_id3,t3.team_name team_name3,t3.photo_path photo_path3,
+		s.season_id,s.season
+		from games g left join teams t1 on g.home_team = t1.team_id 
+		left join teams t2 on g.away_team = t2.team_id 
+		left join teams t3 on g.win_team = t3.team_id 
+		left join seasons s on g.season = s.season_id
+		
+		where 1 = 1 
+		<if test="select_team != null and select_team != '' ">
+		and (g.home_team = #{select_team} or g.away_team = #{select_team})
+		</if>
+		<if test="game_date != null and game_date != '' ">
+		and DATE_FORMAT(g.game_date,'%Y-%m-%d') = #{game_date}
+		</if>
+		order by g.game_date 
+		<if test="page != null and limit != null">
+		limit #{page},#{limit} 
+		</if>
+		
+	</select>
+	
+	<!-- 根据id查询比赛 -->
+	<select id="getGameById" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select
+		g.game_id, DATE_FORMAT(g.game_date,'%Y-%m-%d %H:%i:%s')game_date, g.game_type, g.home_score, g.away_score,
+		t1.team_id team_id1,t1.team_name team_name1,t1.photo_path photo_path1,
+		t2.team_id team_id2,t2.team_name team_name2,t2.photo_path photo_path2,
+		t3.team_id team_id3,t3.team_name team_name3,t3.photo_path photo_path3,
+		s.season_id,s.season
+		from games g left join teams t1 on g.home_team = t1.team_id 
+		left join teams t2 on g.away_team = t2.team_id 
+		left join teams t3 on g.win_team = t3.team_id 
+		left join seasons s on g.season = s.season_id
+		
+		where g.game_id = #{game_id}
+		
+	</select>
+	
+	<!-- 查询比赛总数 -->
+	<select id="getCount" parameterType="com.yz.model.dto.GameDTO" resultType="java.lang.Integer">
+		select count(g.game_id) from games g 
+		where 1=1
+		<if test="select_team != null and select_team != '' ">
+		and (g.home_team = #{select_team} or g.away_team = #{select_team})
+		</if>
+		<if test="game_date != null and game_date != '' ">
+		and DATE_FORMAT(g.game_date,'%Y-%m-%d') = #{game_date}
+		</if>
+	</select>
+	
+	<!-- 新增球队 -->
+	<insert id="insertGame" parameterType="com.yz.model.dto.GameDTO">
+		insert into games(game_id,game_date,game_type,season,home_team,away_team,win_team,home_score,away_score)
+		values(#{game_id},str_to_date(#{game_date},'%Y-%m-%d %H:%i:%s'),#{game_type},#{season},#{home_team},#{away_team},
+		#{win_team},#{home_score},#{away_score})
+	</insert>
+	
+	<!-- 更新比赛分数 -->
+	<update id="updateGameScore" parameterType="com.yz.model.dto.GameDTO">
+		update games set away_score = #{away_score},home_score = #{home_score},win_team = #{win_team}
+		where game_id = #{game_id}
+	</update>
+
+</mapper>

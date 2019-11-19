@@ -1,5 +1,7 @@
 package com.yz.service;
 
+import java.util.List;
+
 import com.alibaba.fastjson.JSONObject;
 import com.yz.model.Echart;
 import com.yz.model.dto.TotalDTO;
@@ -15,5 +17,7 @@ public interface EchartService {
 	JSONObject getFilm_Info(Echart echart);
 	//获取影视总数
 	TotalDTO getTotal();
+	//查询NBA球队战绩
+	List<TotalDTO> getnbaTeamRank();
 
 }

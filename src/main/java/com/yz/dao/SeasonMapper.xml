@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yz.dao.SeasonMapper">
+
+	<resultMap id="BaseResultMap" type="com.yz.model.Season">
+		<id column="season_id" property="season_id" jdbcType="INTEGER" />
+		<result column="season" property="season" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 查询所有球队数据 -->
+	<select id="getSeasons" resultMap="BaseResultMap">
+		select s.season_id, s.season from seasons s
+		
+	</select>
+	
+
+</mapper>

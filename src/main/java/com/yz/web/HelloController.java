@@ -17,10 +17,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSONObject;
 import com.yz.model.Film;
+import com.yz.model.Record;
 import com.yz.model.User;
 import com.yz.model.dto.TotalDTO;
 import com.yz.service.EchartService;
 import com.yz.service.FilmService;
+import com.yz.service.RecordService;
 import com.yz.service.UserService;
 
 /**
@@ -35,6 +37,8 @@ public class HelloController {
 	private EchartService echartService;
 	@Autowired
 	private FilmService filmService;
+	@Autowired
+	private RecordService recordService;
 
 	/**
 	 * 前往主页
@@ -61,6 +65,15 @@ public class HelloController {
 		//查询评分Top10
 		List<Film> films = filmService.getTop10();
 		model.addAttribute("films", films);
+		//查询NBA球队战绩
+		Record record = new Record();
+		record.setSeason("1");
+		record.setBranch("1");
+		List<Record> east_records = recordService.getRecords(record);
+		model.addAttribute("east_records", east_records);
+		record.setBranch("2");
+		List<Record> west_records = recordService.getRecords(record);
+		model.addAttribute("west_records", west_records);
 		return "welcome";
 	}
 	

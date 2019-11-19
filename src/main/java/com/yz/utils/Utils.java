@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -17,6 +19,7 @@ import sun.misc.BASE64Encoder;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.yz.model.dto.GameDTO;
 
 /**
  * @author ZGD
@@ -191,6 +194,37 @@ public class Utils {
 		}
 		
 		return picture;
+	}
+
+	//根据比赛时间和球队生成game_id
+	public static String getGameID(GameDTO gameDTO) {
+		String game_date = gameDTO.getGame_date();
+		String home_team = gameDTO.getHome_team();
+		String away_team = gameDTO.getAway_team();
+		if (home_team.length() == 1) {
+			home_team = "0"+home_team;
+		}
+		if (away_team.length() == 1) {
+			away_team = "0"+away_team;
+		}
+		
+		return game_date.substring(0, 4)+game_date.substring(5, 7)+game_date.substring(8, 10)+away_team+home_team;
+	}
+
+	/**
+	 * 算百分比
+	 * @Author 作者: ZhuGuodong
+	 * @version 创建时间: 2019年11月18日上午10:51:16
+	 * @param win
+	 * @param total
+	 * @return
+	 */
+	public static String getWin_rate(Integer win, Integer total) {
+		DecimalFormat df = new DecimalFormat("0%");
+		df.setMaximumFractionDigits(1);
+		df.setRoundingMode(RoundingMode.HALF_UP);
+		String format = df.format(win*1.0/total*1.0);
+		return format;
 	}
 
 }
