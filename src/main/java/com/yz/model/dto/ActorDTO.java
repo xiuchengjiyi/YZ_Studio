@@ -24,6 +24,7 @@ public class ActorDTO {
 	private String cre_time;
 	private Integer page;
 	private Integer limit;
+	private String sort;//排序方式1：默认创建时间2：作品数3：作品豆瓣平均分
 	public String getAc_id() {
 		return ac_id;
 	}
@@ -95,6 +96,12 @@ public class ActorDTO {
 	}
 	public void setLimit(Integer limit) {
 		this.limit = limit;
+	}
+	public String getSort() {
+		return sort;
+	}
+	public void setSort(String sort) {
+		this.sort = sort;
 	}
 	
 	

@@ -54,6 +54,8 @@ public class ActorServiceImpl implements ActorService {
 			//图片路径获取图片
 			String ac_picture = actor.getAc_picture();
 			actors.put("ac_picture", Utils.getPicture(ac_picture));
+			actors.put("count", actor.getCount());
+			actors.put("avg_score", actor.getAvg_score());
 			
 			jsonArray.add(actors);
 			

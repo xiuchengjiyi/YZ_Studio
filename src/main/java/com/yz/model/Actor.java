@@ -21,6 +21,8 @@ public class Actor {
 	private String is_delete;//0：正常 1：删除
 	private String cre_time;
 	private List<Film> films;//参演作品
+	private Integer count;//作品数
+	private String avg_score;//作品豆瓣平均分
 	
 	public String getAc_id() {
 		return ac_id;
@@ -93,6 +95,18 @@ public class Actor {
 	}
 	public void setFilms(List<Film> films) {
 		this.films = films;
+	}
+	public Integer getCount() {
+		return count;
+	}
+	public void setCount(Integer count) {
+		this.count = count;
+	}
+	public String getAvg_score() {
+		return avg_score;
+	}
+	public void setAvg_score(String avg_score) {
+		this.avg_score = avg_score;
 	}
 
 }

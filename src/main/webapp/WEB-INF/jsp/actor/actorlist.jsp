@@ -61,6 +61,12 @@ pageEncoding="UTF-8"%>
 					<button class="layui-btn" id="addMovie" data-type="addMovie"><i class="layui-icon"></i>添加</button>
 					<span style="margin-left: 20px" id="count" style="line-height:40px"></span>
 				</form> 
+				排序：<button class="layui-btn layui-btn-normal" id="sort_count" data-type="sort_count">按作品数</button>
+				<button class="layui-btn layui-btn-normal" id="sort_score" data-type="sort_score">豆瓣评分（3部以上）</button>
+			</div>
+			
+			<div >
+				
 			</div>
 			<div class="layui-card-body">
 				<div class="layui-inline">
@@ -104,7 +110,7 @@ pageEncoding="UTF-8"%>
 
 				table.render({
 					elem: '#actor_table',
-					url: 'actors',
+					url: 'actors?sort=1',
 					cols: [
 						[{
 							title: '序号',
@@ -156,6 +162,18 @@ pageEncoding="UTF-8"%>
 						}, {
 							field: 'age',
 							title: '年龄',
+							sort: true,
+							width: 100,
+							align: 'center'
+						}, {
+							field: 'count',
+							title: '作品数',
+							sort: true,
+							width: 100,
+							align: 'center'
+						}, {
+							field: 'avg_score',
+							title: '豆瓣平均分',
 							sort: true,
 							width: 100,
 							align: 'center'
@@ -290,17 +308,21 @@ pageEncoding="UTF-8"%>
 						    }
 						});
 					},
-					exportData: function(){
-						jsonurl = "../../acMOVIE!getMovieExel.action?start="+$("#start").val()+"&end="+$("#end").val()
-							+"&moviename="+$("#moviename").val()+"&country="+$("#country option:selected").val()
-							+"&performers="+$("#performers option:selected").val();
-						$.get(
-							jsonurl,
-							function(data){
-								var obj = new Function("return" + data)();//转换后的JSON对象
-								table.exportFile(obj.extitle, obj.exdata); //默认导出 csv，也可以为：xls
+					sort_count: function(){
+						table.reload('actor_table',{
+							url: 'actors?sort=2'
+							,page: {
+							    curr: 1 //重新从第 1 页开始
 							}
-						); 
+						});
+					},
+					sort_score: function(){
+						table.reload('actor_table',{
+							url: 'actors?sort=3'
+							,page: {
+							    curr: 1 //重新从第 1 页开始
+							}
+						});
 					},
 
 				};
@@ -320,7 +342,12 @@ pageEncoding="UTF-8"%>
 		           active[type] ? active[type].call(this) : '';
 		       });
 		       
-		       $('#export').on('click',function(){
+		       $('#sort_count').on('click',function(){
+		           var type = $(this).data('type');
+		           active[type] ? active[type].call(this) : '';
+		       });
+		       
+		       $('#sort_score').on('click',function(){
 		           var type = $(this).data('type');
 		           active[type] ? active[type].call(this) : '';
 		       });

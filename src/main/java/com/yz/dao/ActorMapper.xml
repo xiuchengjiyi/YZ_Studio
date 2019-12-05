@@ -11,6 +11,8 @@
 		<result column="age" property="age" jdbcType="VARCHAR" />
 		<result column="ac_picture" property="ac_picture" jdbcType="VARCHAR" />
 		<result column="cre_time" property="cre_time" jdbcType="TIMESTAMP" />
+		<result column="count" property="count" jdbcType="INTEGER" />
+		<result column="avg_score" property="avg_score" jdbcType="VARCHAR" />
 		<association property="nationality" column="birth_place" javaType="com.yz.model.Nationality">
 			<id column="nat_id" property="nat_id" jdbcType="INTEGER"/>
 			<result column="nationality" property="nationality" jdbcType="VARCHAR" />
@@ -29,9 +31,11 @@
 	<select id="selectActorList" parameterType="com.yz.model.dto.ActorDTO" resultMap="BaseResultMap">
 		select
 		a.ac_id, a.ac_name, a.english_name, a.sex, a.birthday, a.birth_place, a.age, a.ac_picture ,a.is_delete,
-		b.nationality
+		b.nationality,count(af.ac_id) count ,ROUND (AVG(f.db_score),2) avg_score 
 		from actors a
 		left join nationality b on a.birth_place = b.nat_id
+		left join actor_film af on a.ac_id = af.ac_id
+		LEFT JOIN films f ON af.film_id = f.film_id 
 		where a.is_delete = 0 
 		<if test="ac_name != null and ac_name != '' ">
 		and (a.ac_name like '%${ac_name}%' or a.english_name like '%${ac_name}%')
@@ -42,7 +46,20 @@
 		<if test="sex != null and sex != '' ">
 		and a.sex = #{sex}
 		</if>
-		 order by a.cre_time 
+		group by af.ac_id 
+		<if test="sort == 3">
+		 	having count > 2
+		 </if>
+		 order by 
+		 <if test="sort == 1">
+		 	a.cre_time
+		 </if>
+		 <if test="sort == 2">
+		 	count desc
+		 </if>
+		 <if test="sort == 3">
+		 	avg_score desc
+		 </if>
 		<if test="page != null and limit != null">
 		limit #{page},#{limit} 
 		</if>
@@ -74,7 +91,10 @@
 	</select>
 	<!-- 查询演员总数 -->
 	<select id="selectActorCount" parameterType="com.yz.model.dto.ActorDTO" resultType="java.lang.Integer">
-		select count(a.ac_id) from actors a where a.is_delete = 0 
+		select count(ss.counts) from (
+		select count(a.ac_id) counts from actors a
+		left join actor_film af on a.ac_id = af.ac_id
+		where a.is_delete = 0 
 		<if test="ac_name != null and ac_name != '' ">
 		and (a.ac_name like '%${ac_name}%' or a.english_name like '%${ac_name}%')
 		</if>
@@ -84,6 +104,11 @@
 		<if test="sex != null and sex != '' ">
 		and a.sex = #{sex}
 		</if>
+		group by af.ac_id 
+		<if test="sort == 3">
+			having counts > 2
+		 </if>
+		 ) ss
 	</select>
 	<!-- 新增演员 -->
 	<insert id="insertActor" parameterType="com.yz.model.Actor">
